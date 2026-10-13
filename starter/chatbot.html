@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Emerald Assistant - Rumah Sehat Fit Club Emerald</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <div class="chat-card">
+    <!-- Header -->
+    <header class="chat-header">
+      <div class="header-brand">
+        <div class="brand-avatar">
+          <svg viewBox="0 0 24 24">
+            <path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3L12 3z"/>
+          </svg>
+          <span class="online-dot" title="Online"></span>
+        </div>
+        <div class="brand-info">
+          <h2>Emerald Assistant</h2>
+          <p><span>●</span> Fit Club Sawojajar • Coach Niar</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button id="clear-chat-btn" class="clear-btn" type="button" title="Bersihkan riwayat percakapan">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M10 11v6M14 11v6"/>
+          </svg>
+          <span>Hapus</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Quick Chips -->
+    <div class="quick-chips-container">
+      <button class="chip-btn" data-query="Jam operasional Rumah Sehat Emerald kapan saja?">⏰ Jam Buka</button>
+      <button class="chip-btn" data-query="Di mana alamat lengkap Rumah Sehat Fit Club Emerald?">📍 Lokasi Sawojajar</button>
+      <button class="chip-btn" data-query="Apa itu analisa komposisi tubuh Tanita dan apa manfaatnya?">⚖️ Analisa Tanita</button>
+      <button class="chip-btn" data-query="Apa saja layanan konsultasi nutrisi dan gaya hidup sehat yang tersedia?">🥗 Layanan Nutrisi</button>
+      <button class="chip-btn" data-query="Bagaimana cara menghubungi atau membuat janji dengan Coach Niar?">📞 Kontak Coach Niar</button>
+    </div>
+
+    <!-- Messages Container -->
+    <div id="chat-box" class="chat-box"></div>
+
+    <!-- Disclaimer -->
+    <div class="chat-disclaimer">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>
+      </svg>
+      <span>Asisten AI memberikan informasi umum & nutrisi, tidak menggantikan evaluasi medis langsung.</span>
+    </div>
+
+    <!-- Input Form -->
+    <form id="chat-form" class="chat-form">
+      <div class="input-container">
+        <input type="text" id="user-input" class="chat-input" placeholder="Tanyakan seputar nutrisi, jadwal, Tanita..." autocomplete="off" required />
+      </div>
+      <button type="submit" class="send-btn" title="Kirim Pesan">
+        <svg viewBox="0 0 24 24">
+          <path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>
+        </svg>
+      </button>
+    </form>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,1766 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rumah Sehat Fit Club Emerald - Edukasi Nutrisi & Pola Hidup Sehat Malang</title>
+  <meta name="description" content="Pusat edukasi nutrisi dan konsultasi gaya hidup sehat berbasis rumah di Sawojajar, Malang bersama Coach Niar. Evaluasi Tanita, pola makan seimbang, dan pendampingan." />
+
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', '-apple-system', 'sans-serif'],
+          },
+          colors: {
+            emerald: {
+              50: '#ecfdf5',
+              100: '#d1fae5',
+              200: '#a7f3d0',
+              300: '#6ee7b7',
+              400: '#34d399',
+              500: '#10b981',
+              600: '#059669',
+              700: '#047857',
+              800: '#065f46',
+              900: '#064e3b',
+              950: '#022c22',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- React 18 and ReactDOM CDN -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+
+  <!-- Babel Standalone for JSX compilation in browser -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    /* Custom animations & fine touches */
+    @keyframes pulseGlow {
+      0%, 100% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5);
+      }
+      50% {
+        box-shadow: 0 0 0 12px rgba(16, 185, 129, 0);
+      }
+    }
+
+    .pulse-glow {
+      animation: pulseGlow 2.5s infinite;
+    }
+
+    @keyframes bounceDot {
+      0%, 80%, 100% { transform: scale(0); }
+      40% { transform: scale(1); }
+    }
+
+    .bounce-dot-1 { animation: bounceDot 1.4s infinite ease-in-out both; animation-delay: -0.32s; }
+    .bounce-dot-2 { animation: bounceDot 1.4s infinite ease-in-out both; animation-delay: -0.16s; }
+    .bounce-dot-3 { animation: bounceDot 1.4s infinite ease-in-out both; }
+
+    /* Custom thin scrollbar */
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 5px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+
+<body class="bg-stone-50 text-stone-800 antialiased selection:bg-emerald-200 selection:text-emerald-900">
+  <div id="root"></div>
+
+  <!-- Main React App Script -->
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+    // ==========================================
+    // INLINE SVG ICONS (Lucide Compatible)
+    // ==========================================
+    const Heart = ({ className = "w-5 h-5" }) => (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+      </svg>
+    );
+
+    const Activity = ({ className = "w-5 h-5" }) => (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+      </svg>
+    );
+
+    const Clock = ({ className = "w-5 h-5" }) => (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+      </svg>
+    );
+
+    const MapPin = ({ className = "w-5 h-5" }) => (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>
+      </svg>
+    );
+
+    const Phone = ({ className = "w-5 h-5" }) => (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+      </svg>
+    );
+
+    const MessageCircle = ({ className = "w-5 h-5" }) => (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>
+      </svg>
+    );
+
+    const Menu = ({ className = "w-5 h-5" }) => (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/>
+      </svg>
+    );
+
+    const X = ({ className = "w-5 h-5" }) => (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+      </svg>
+    );
+
+    const ChevronRight = ({ className = "w-5 h-5" }) => (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="m9 18 6-6-6-6"/>
+      </svg>
+    );
+
+    const Globe = ({ className = "w-5 h-5" }) => (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10"/><line x1="2" x2="22" y1="12" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+      </svg>
+    );
+
+    const Sparkles = ({ className = "w-5 h-5" }) => (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3L12 3z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/>
+      </svg>
+    );
+
+    const Send = ({ className = "w-5 h-5" }) => (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>
+      </svg>
+    );
+
+    const Loader2 = ({ className = "w-5 h-5" }) => (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+      </svg>
+    );
+
+    const CheckCircle2 = ({ className = "w-5 h-5" }) => (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>
+      </svg>
+    );
+
+    const Info = ({ className = "w-5 h-5" }) => (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>
+      </svg>
+    );
+
+    const Scale = ({ className = "w-5 h-5" }) => (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/>
+      </svg>
+    );
+
+    const Flame = ({ className = "w-5 h-5" }) => (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>
+      </svg>
+    );
+
+    const Dumbbell = ({ className = "w-5 h-5" }) => (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="m6.5 6.5 11 11"/><path d="m21 21-1-1"/><path d="m3 3 1 1"/><path d="m18 22 4-4"/><path d="m2 6 4-4"/><path d="m3 10 7-7"/><path d="m14 21 7-7"/>
+      </svg>
+    );
+
+    const BookOpen = ({ className = "w-5 h-5" }) => (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+      </svg>
+    );
+
+    const ArrowRight = ({ className = "w-5 h-5" }) => (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+      </svg>
+    );
+
+    const ShieldAlert = ({ className = "w-5 h-5" }) => (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="M12 8v4"/><path d="M12 16h.01"/>
+      </svg>
+    );
+
+    const Bot = ({ className = "w-5 h-5" }) => (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/>
+      </svg>
+    );
+
+    const Trash2 = ({ className = "w-5 h-5" }) => (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/>
+      </svg>
+    );
+
+    // ==========================================
+    // TRANSLATIONS DATA
+    // ==========================================
+    const translations = {
+      id: {
+        nav: {
+          home: 'Beranda',
+          about: 'Tentang Kami',
+          services: 'Layanan',
+          healthyLiving: 'Pola Hidup Sehat',
+          contact: 'Kontak',
+          calculator: 'Kalkulator Tubuh',
+          assistant: 'Emerald AI Assistant',
+          consultationBtn: 'Konsultasi Sekarang'
+        },
+        hero: {
+          badge: 'Rumah Sehat Fit Club Emerald Malang',
+          title: 'Perjalanan Menuju Diri yang Lebih Sehat & Bahagia Dimulai Di Sini.',
+          subtitle: 'Pusat edukasi nutrisi dan konsultasi gaya hidup sehat berbasis rumah di Sawojajar, Malang. Temani langkah awalmu menuju perubahan berat badan ideal dan kebiasaan sehat yang berkelanjutan.',
+          ctaPrimary: 'Mulai Konsultasi WhatsApp',
+          ctaSecondary: 'Jelajahi Layanan Kami',
+          hoursNotice: 'Buka Senin–Sabtu: 07.00–10.00 WIB'
+        },
+        quickInfo: {
+          locationTitle: 'Lokasi Sawojajar',
+          locationDesc: 'Jl. Danau Tondano Dalam, Sawojajar 1, Malang',
+          hoursTitle: 'Jam Operasional',
+          hoursDesc: 'Senin - Sabtu: 07.00 - 10.00 WIB',
+          contactTitle: 'Hubungi Coach Niar',
+          contactDesc: '0813-3650-3618 (WhatsApp)'
+        },
+        about: {
+          badge: 'Mengenal Emerald',
+          title: 'Pendekatan Ramah & Personalisasi untuk Gaya Hidup Sehat',
+          desc1: 'Rumah Sehat Fit Club Emerald adalah ruang konsultasi berbasis rumah yang hangat dan suportif di Sawojajar, Malang. Kami percaya bahwa kesehatan adalah investasi jangka panjang, bukan sekadar diet ketat sesaat.',
+          desc2: 'Bersama Coach Niar, kami membantu Anda memahami kebutuhan tubuh melalui edukasi nutrisi yang seimbang, evaluasi komposisi tubuh yang tepat, dan pembentukan kebiasaan harian yang realistis.',
+          coachTitle: 'Pendampingan Bersama Coach Niar',
+          coachDesc: 'Coach Niar hadir untuk memandu Anda langkah demi langkah dalam perjalanan kebugaran dan nutrisi. Tanpa paksaan, tanpa penilaian, fokus pada kemajuan positif Anda.',
+          values: [
+            { title: 'Edukasi Berkelanjutan', desc: 'Memahami apa yang dimakan dan mengapa tubuh membutuhkannya.' },
+            { title: 'Evaluasi Tepat', desc: 'Menggunakan analisa evaluasi tubuh untuk data yang akurat.' },
+            { title: 'Komunitas Suportif', desc: 'Lingkungan yang merangkul dan saling mendukung satu sama lain.' }
+          ]
+        },
+        services: {
+          badge: 'Layanan Unggulan',
+          title: 'Layanan Kesehatan & Nutrisi Terpadu',
+          subtitle: 'Semua layanan dirancang untuk memberikan pemahaman holistik tentang tubuh Anda.',
+          items: [
+            {
+              id: 'consultation',
+              title: 'Konsultasi Gaya Hidup Sehat',
+              desc: 'Sesi diskusi personal untuk memetakan tujuan kesehatan, kebiasaan makan, dan gaya hidup Anda saat ini.',
+              icon: 'Heart'
+            },
+            {
+              id: 'nutrition',
+              title: 'Edukasi Nutrisi & Pola Makan',
+              desc: 'Panduan menyusun piring makan bergizi seimbang, memilih makanan harian, dan menjaga asupan nutrisi.',
+              icon: 'BookOpen'
+            },
+            {
+              id: 'composition',
+              title: 'Analisa Komposisi Tubuh (Tanita)',
+              desc: 'Pengukuran menyeluruh menggunakan perangkat Tanita untuk mengetahui kadar lemak tubuh, lemak visceral, dan massa otot.',
+              icon: 'Scale'
+            },
+            {
+              id: 'habits',
+              title: 'Panduan Kebiasaan Sehat',
+              desc: 'Pola pendampingan harian untuk membangun kebiasaan hidrasi, kualitas tidur, dan pola aktivitas yang konsisten.',
+              icon: 'Flame'
+            },
+            {
+              id: 'fitness',
+              title: 'Panduan Aktivitas Fisik Ringan',
+              desc: 'Pengenalan gerakan latihan dasar memanfaatkan fasilitas internal seperti matras, resistance band, dan kettlebell.',
+              icon: 'Dumbbell'
+            }
+          ],
+          notice: 'Catatan: Rumah Sehat Fit Club Emerald memberikan edukasi gaya hidup dan nutrisi. Kami tidak memberikan diagnosis medis maupun tindakan medis.'
+        },
+        bodySection: {
+          badge: 'Mengapa Komposisi Tubuh Penting?',
+          title: 'Lebih dari Sekadar Angka di Timbangan',
+          desc: 'Timbangan biasa hanya mengukur berat total. Dengan evaluasi peralatan Tanita, Anda akan memahami faktor kunci kesehatan Anda:',
+          points: [
+            { name: 'Persentase Lemak Tubuh', desc: 'Mengetahui proporsi lemak tubuh dibandingkan massa otot.' },
+            { name: 'Lemak Visceral', desc: 'Memahami tingkat lemak tersembunyi yang mengelilingi organ vital.' },
+            { name: 'Massa Otot', desc: 'Penting untuk menjaga metabolisme tubuh tetap aktif dan kuat.' }
+          ]
+        },
+        calculator: {
+          title: 'Simulasi Penilaian Komposisi Tubuh',
+          subtitle: 'Hitung perkiraan Indeks Massa Tubuh (BMI) dan dapatkan rekomendasi awal sebelum evaluasi Tanita bersama Coach Niar.',
+          height: 'Tinggi Badan (cm)',
+          weight: 'Berat Badan (kg)',
+          age: 'Usia (tahun)',
+          gender: 'Jenis Kelamin',
+          male: 'Laki-laki',
+          female: 'Perempuan',
+          calculateBtn: 'Hitung Rekomendasi Saya',
+          resultTitle: 'Hasil Estimasi Awal Anda',
+          bmiLabel: 'Indeks Massa Tubuh (BMI)',
+          statusLabel: 'Kategori Estimasi',
+          adviceTitle: 'Langkah Selanjutnya yang Disarankan:',
+          adviceText: 'Data ini adalah estimasi awal. Lakukan evaluasi penuh menggunakan alat Tanita di Fit Club Emerald untuk mengetahui kadar lemak visceral dan massa otot secara rinci.',
+          ctaBtn: 'Jadwalkan Evaluasi Tanita'
+        },
+        blog: {
+          badge: 'Edukasi & Edukasi Gaya Hidup',
+          title: 'Artikel Nutrisi & Kebiasaan Sehat',
+          subtitle: 'Bacaan singkat yang informatif untuk menemani perjalanan gaya hidup sehat Anda.',
+          articles: [
+            {
+              id: 1,
+              category: 'Nutrisi',
+              title: 'Pentingnya Protein dalam Sarapan Pagi Anda',
+              snippet: 'Mengapa asupan protein yang cukup di pagi hari membantu menjaga energi dan mengendalikan rasa lapar seharian.',
+              readTime: '3 min baca',
+              date: '10 Okt 2026'
+            },
+            {
+              id: 2,
+              category: 'Hidrasi',
+              title: 'Berapa BANYAK Air yang Benar-Benar Dibutuhkan Tubuh?',
+              snippet: 'Panduan sederhana menghitung kebutuhan cairan harian berdasarkan berat badan dan aktivitas harian Anda.',
+              readTime: '4 min baca',
+              date: '08 Okt 2026'
+            },
+            {
+              id: 3,
+              category: 'Komposisi Tubuh',
+              title: 'Mengapa Otot Lebih Penting daripada Angka Timbangan',
+              snippet: 'Mengenal konsep body recomposition dan mengapa lingkar tubuh lebih penting dibanding sekadar turun kg.',
+              readTime: '5 min baca',
+              date: '02 Okt 2026'
+            }
+          ]
+        },
+        contact: {
+          badge: 'Hubungi Kami',
+          title: 'Siap Memulai Perjalanan Sehat Anda?',
+          subtitle: 'Kunjungi lokasi kami di Sawojajar Malang atau kirimkan pesan langsung melalui WhatsApp.',
+          addressTitle: 'Alamat Lengkap',
+          addressText: 'Jl. Danau Tondano Dalam, Perumahan Sawojajar 1 III A2 F31, Sawojajar, Kedungkandang, Kota Malang, Jawa Timur 65139',
+          hoursTitle: 'Jam Operasional',
+          hoursText: 'Senin – Sabtu: 07:00 – 10:00 WIB\nMinggu & Hari Libur: Tutup',
+          phoneTitle: 'Telepon / WhatsApp',
+          phoneText: '0813-3650-3618 (Coach Niar)',
+          formTitle: 'Kirim Formulir Pertanyaan',
+          nameLabel: 'Nama Lengkap',
+          phoneLabel: 'Nomor WhatsApp / HP',
+          messageLabel: 'Pesan / Pertanyaan Anda',
+          sendBtn: 'Kirim Pertanyaan via WhatsApp',
+          mapBtn: 'Buka di Google Maps'
+        },
+        assistant: {
+          title: 'Emerald Assistant',
+          subtitle: 'Online • Asisten Nutrisi & Fit Club',
+          placeholder: 'Tanyakan sesuatu (jadwal, lokasi, Tanita, nutrisi)...',
+          disclaimer: 'Asisten AI memberikan informasi umum & tidak menggantikan konsultasi langsung Coach Niar.'
+        },
+        footer: {
+          aboutText: 'Rumah Sehat Fit Club Emerald - Pusat edukasi nutrisi dan konsultasi gaya hidup sehat berbasis rumah di Malang, Indonesia.',
+          quickLinks: 'Tautan Cepat',
+          services: 'Layanan Utama',
+          contactInfo: 'Informasi Kontak',
+          rights: 'Hak Cipta Dilindungi. Rumah Sehat Fit Club Emerald.'
+        }
+      },
+      en: {
+        nav: {
+          home: 'Home',
+          about: 'About Us',
+          services: 'Services',
+          healthyLiving: 'Healthy Living',
+          contact: 'Contact',
+          calculator: 'Body Assessment',
+          assistant: 'Emerald AI Assistant',
+          consultationBtn: 'Consult Now'
+        },
+        hero: {
+          badge: 'Fit Club Emerald Health Home Malang',
+          title: 'Your Journey to a Healthier, Happier You Starts Here.',
+          subtitle: 'A home-based nutrition education and healthy lifestyle consultation center in Sawojajar, Malang. Guiding your steps towards sustainable healthy habits and ideal body wellness.',
+          ctaPrimary: 'Start WhatsApp Consultation',
+          ctaSecondary: 'Explore Our Services',
+          hoursNotice: 'Open Mon–Sat: 7:00 AM–10:00 AM WIB'
+        },
+        quickInfo: {
+          locationTitle: 'Sawojajar Location',
+          locationDesc: 'Jl. Danau Tondano Dalam, Sawojajar 1, Malang',
+          hoursTitle: 'Operating Hours',
+          hoursDesc: 'Monday - Saturday: 7:00 AM - 10:00 AM WIB',
+          contactTitle: 'Contact Coach Niar',
+          contactDesc: '0813-3650-3618 (WhatsApp)'
+        },
+        about: {
+          badge: 'About Emerald',
+          title: 'A Welcoming & Personalized Approach to Wellness',
+          desc1: 'Rumah Sehat Fit Club Emerald is a warm, home-based consultation space in Sawojajar, Malang. We believe wellness is a long-term lifestyle investment rather than a temporary strict diet.',
+          desc2: 'Guided by Coach Niar, we help you understand your body’s needs through balanced nutrition education, precise body composition evaluation, and realistic daily habit building.',
+          coachTitle: 'Mentorship with Coach Niar',
+          coachDesc: 'Coach Niar is here to guide you step-by-step through your fitness and nutrition journey. No pressure, no judgment—just positive, progressive support.',
+          values: [
+            { title: 'Continuous Education', desc: 'Understanding what to eat and why your body thrives on it.' },
+            { title: 'Accurate Evaluation', desc: 'Utilizing Tanita body analysis for precise insights.' },
+            { title: 'Supportive Community', desc: 'An encouraging environment where members lift each other up.' }
+          ]
+        },
+        services: {
+          badge: 'Our Key Services',
+          title: 'Integrated Wellness & Nutrition Services',
+          subtitle: 'Designed to offer holistic guidance and realistic habits tailored for your body.',
+          items: [
+            {
+              id: 'consultation',
+              title: 'Healthy Lifestyle Consultation',
+              desc: 'Personal discussion sessions to map out your wellness goals, eating patterns, and current habits.',
+              icon: 'Heart'
+            },
+            {
+              id: 'nutrition',
+              title: 'Nutrition & Meal Education',
+              desc: 'Guidance on building balanced meals, whole food choices, and practical daily nourishment.',
+              icon: 'BookOpen'
+            },
+            {
+              id: 'composition',
+              title: 'Body Composition Analysis (Tanita)',
+              desc: 'Comprehensive Tanita BIA assessments measuring body fat percentage, visceral fat, and muscle mass.',
+              icon: 'Scale'
+            },
+            {
+              id: 'habits',
+              title: 'Healthy Habits Coaching',
+              desc: 'Daily guidance to develop sustainable hydration, restful sleep rhythms, and steady energy.',
+              icon: 'Flame'
+            },
+            {
+              id: 'fitness',
+              title: 'Light Physical Activity Guidance',
+              desc: 'Gentle introduction to foundational home exercises using mats, resistance bands, and kettlebells.',
+              icon: 'Dumbbell'
+            }
+          ],
+          notice: 'Note: Rumah Sehat Fit Club Emerald provides lifestyle education and nutrition guidance. We do not provide medical diagnoses or medical treatments.'
+        },
+        bodySection: {
+          badge: 'Why Body Composition Matters',
+          title: 'Beyond Just Numbers on a Bathroom Scale',
+          desc: 'Standard scales only measure total mass. Tanita equipment uncovers critical health factors that define true vitality:',
+          points: [
+            { name: 'Body Fat Percentage', desc: 'Understanding your fat proportion relative to lean muscle mass.' },
+            { name: 'Visceral Fat Level', desc: 'Monitoring hidden deep abdominal fat surrounding vital organs.' },
+            { name: 'Muscle Mass', desc: 'Essential for maintaining active metabolic rate and long-term vitality.' }
+          ]
+        },
+        calculator: {
+          title: 'Body Composition Estimator',
+          subtitle: 'Calculate your Body Mass Index (BMI) and discover preliminary recommendations before your Tanita evaluation with Coach Niar.',
+          height: 'Height (cm)',
+          weight: 'Weight (kg)',
+          age: 'Age (years)',
+          gender: 'Gender',
+          male: 'Male',
+          female: 'Female',
+          calculateBtn: 'Calculate My Recommendation',
+          resultTitle: 'Your Initial Estimation',
+          bmiLabel: 'Body Mass Index (BMI)',
+          statusLabel: 'Category Status',
+          adviceTitle: 'Recommended Next Step:',
+          adviceText: 'This index is an initial indicator. Schedule a Tanita assessment at Emerald Fit Club to examine your visceral fat and active muscle mass in detail.',
+          ctaBtn: 'Schedule Tanita Assessment'
+        },
+        blog: {
+          badge: 'Wellness Knowledge',
+          title: 'Nutrition & Lifestyle Articles',
+          subtitle: 'Short, practical reads to accompany your daily healthy lifestyle journey.',
+          articles: [
+            {
+              id: 1,
+              category: 'Nutrition',
+              title: 'The Vital Role of Protein in Your Morning Breakfast',
+              snippet: 'How adequate morning protein sustains clean energy and curbs mindless cravings throughout the day.',
+              readTime: '3 min read',
+              date: 'Oct 10, 2026'
+            },
+            {
+              id: 2,
+              category: 'Hydration',
+              title: 'How Much Water Does Your Body Actually Require?',
+              snippet: 'A straightforward guide to calculating daily water intake based on your body weight and daily movement.',
+              readTime: '4 min read',
+              date: 'Oct 08, 2026'
+            },
+            {
+              id: 3,
+              category: 'Body Composition',
+              title: 'Why Preserving Muscle Outweighs Dropping Weight',
+              snippet: 'Understanding healthy body recomposition and why body tape measurements matter more than dropping kilograms.',
+              readTime: '5 min read',
+              date: 'Oct 02, 2026'
+            }
+          ]
+        },
+        contact: {
+          badge: 'Get in Touch',
+          title: 'Ready to Begin Your Wellness Journey?',
+          subtitle: 'Visit our home consultation center in Sawojajar Malang or send us a message directly via WhatsApp.',
+          addressTitle: 'Full Address',
+          addressText: 'Jl. Danau Tondano Dalam, Perumahan Sawojajar 1 III A2 F31, Sawojajar, Kedungkandang, Malang City, East Java 65139',
+          hoursTitle: 'Operating Hours',
+          hoursText: 'Monday – Saturday: 07:00 AM – 10:00 AM WIB\nSunday & Public Holidays: Closed',
+          phoneTitle: 'Phone / WhatsApp',
+          phoneText: '0813-3650-3618 (Coach Niar)',
+          formTitle: 'Send an Inquiry',
+          nameLabel: 'Full Name',
+          phoneLabel: 'WhatsApp / Phone Number',
+          messageLabel: 'Your Message / Inquiry',
+          sendBtn: 'Send Message via WhatsApp',
+          mapBtn: 'Open in Google Maps'
+        },
+        assistant: {
+          title: 'Emerald Assistant',
+          subtitle: 'Online • Nutrition & Fit Club Guide',
+          placeholder: 'Ask about schedule, location, Tanita, nutrition...',
+          disclaimer: 'AI Assistant provides general wellness information and does not replace personal consultation with Coach Niar.'
+        },
+        footer: {
+          aboutText: 'Rumah Sehat Fit Club Emerald - Home-based nutrition education and healthy lifestyle consultation center in Malang, Indonesia.',
+          quickLinks: 'Quick Links',
+          services: 'Our Services',
+          contactInfo: 'Contact Info',
+          rights: 'All Rights Reserved. Rumah Sehat Fit Club Emerald.'
+        }
+      }
+    };
+
+    // Helper: clean markdown formatting from backend AI
+    function cleanMarkdown(text) {
+      if (!text) return '';
+      return text
+        .replace(/```[a-zA-Z]*\n?/g, '')
+        .replace(/```/g, '')
+        .replace(/`([^`]+)`/g, '$1')
+        .replace(/`/g, '')
+        .replace(/^#{1,6}\s+/gm, '')
+        .replace(/^>\s+/gm, '')
+        .replace(/^(\s*)\*\s+/gm, '$1• ')
+        .replace(/\*\*/g, '')
+        .replace(/__/g, '')
+        .replace(/\*/g, '')
+        .replace(/~~/g, '')
+        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '$1 ($2)')
+        .replace(/^[-=_]{3,}\s*$/gm, '')
+        .trim();
+    }
+
+    function getFormattedTime() {
+      const now = new Date();
+      return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
+    // Backend endpoint
+    const BACKEND_API_URL = 'http://localhost:3000/api/chat';
+    const LOCAL_STORAGE_CHAT_KEY = 'emerald_landing_chat_v1';
+    const LOCAL_STORAGE_WIDGET_KEY = 'emerald_landing_widget_open_v1';
+
+    // ==========================================
+    // MAIN APP COMPONENT
+    // ==========================================
+    function App() {
+      const [lang, setLang] = useState('id');
+      const [activeTab, setActiveTab] = useState('home');
+      const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+      // Chatbot Widget State with Local Persistence
+      const [assistantOpen, setAssistantOpen] = useState(() => {
+        try {
+          const savedState = localStorage.getItem(LOCAL_STORAGE_WIDGET_KEY);
+          return savedState === 'true';
+        } catch (_) {
+          return false;
+        }
+      });
+
+      const defaultWelcome = {
+        sender: 'bot',
+        text: lang === 'id'
+          ? 'Halo! Saya Emerald Assistant, asisten virtual Rumah Sehat Fit Club Emerald di Sawojajar, Malang. Ada yang bisa saya bantu terkait konsultasi nutrisi, analisa komposisi tubuh Tanita, atau jadwal operasional hari ini?'
+          : 'Hello! I am Emerald Assistant, your virtual guide for Rumah Sehat Fit Club Emerald in Sawojajar, Malang. How can I help you regarding nutrition guidance, Tanita body analysis, or opening hours?',
+        time: getFormattedTime()
+      };
+
+      // Load Messages & Conversation history from localStorage
+      const [messages, setMessages] = useState(() => {
+        try {
+          const saved = localStorage.getItem(LOCAL_STORAGE_CHAT_KEY);
+          if (saved) {
+            const parsed = JSON.parse(saved);
+            if (Array.isArray(parsed.messages) && parsed.messages.length > 0) {
+              return parsed.messages;
+            }
+          }
+        } catch (e) {
+          console.error('Error loading chat from localStorage:', e);
+        }
+        return [defaultWelcome];
+      });
+
+      const [conversationHistory, setConversationHistory] = useState(() => {
+        try {
+          const saved = localStorage.getItem(LOCAL_STORAGE_CHAT_KEY);
+          if (saved) {
+            const parsed = JSON.parse(saved);
+            if (Array.isArray(parsed.conversation)) {
+              return parsed.conversation;
+            }
+          }
+        } catch (_) {}
+        return [];
+      });
+
+      const [inputMsg, setInputMsg] = useState('');
+      const [isLoadingAi, setIsLoadingAi] = useState(false);
+      const chatBottomRef = useRef(null);
+
+      // Calculator State
+      const [calcHeight, setCalcHeight] = useState('165');
+      const [calcWeight, setCalcWeight] = useState('65');
+      const [calcAge, setCalcAge] = useState('25');
+      const [calcGender, setCalcGender] = useState('female');
+      const [calcResult, setCalcResult] = useState(null);
+
+      // Contact Form State
+      const [formData, setFormData] = useState({ name: '', phone: '', message: '' });
+
+      const t = translations[lang];
+
+      // Sync widget open state to localStorage
+      useEffect(() => {
+        try {
+          localStorage.setItem(LOCAL_STORAGE_WIDGET_KEY, assistantOpen ? 'true' : 'false');
+        } catch (_) {}
+      }, [assistantOpen]);
+
+      // Save messages and conversation context to localStorage whenever updated
+      useEffect(() => {
+        try {
+          const payload = {
+            messages,
+            conversation: conversationHistory
+          };
+          localStorage.setItem(LOCAL_STORAGE_CHAT_KEY, JSON.stringify(payload));
+        } catch (err) {
+          console.error('Failed to save chat to localStorage:', err);
+        }
+      }, [messages, conversationHistory]);
+
+      // Auto scroll chat to bottom
+      useEffect(() => {
+        if (assistantOpen && chatBottomRef.current) {
+          chatBottomRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, [messages, assistantOpen, isLoadingAi]);
+
+      // Handle BMI / Estimator Calculation
+      const handleCalculate = (e) => {
+        e.preventDefault();
+        const hM = parseFloat(calcHeight) / 100;
+        const w = parseFloat(calcWeight);
+        if (!hM || !w || hM <= 0 || w <= 0) return;
+
+        const bmi = (w / (hM * hM)).toFixed(1);
+        let category = '';
+        let color = '';
+
+        if (bmi < 18.5) {
+          category = lang === 'id' ? 'Berat Badan Less (Underweight)' : 'Underweight';
+          color = 'text-amber-700 bg-amber-50 border border-amber-200';
+        } else if (bmi < 24.9) {
+          category = lang === 'id' ? 'Berat Badan Ideal (Normal)' : 'Normal Weight';
+          color = 'text-emerald-700 bg-emerald-50 border border-emerald-200';
+        } else if (bmi < 29.9) {
+          category = lang === 'id' ? 'Kelebihan Berat Badan (Overweight)' : 'Overweight';
+          color = 'text-orange-700 bg-orange-50 border border-orange-200';
+        } else {
+          category = lang === 'id' ? 'Obesitas (Obesity)' : 'Obesity';
+          color = 'text-rose-700 bg-rose-50 border border-rose-200';
+        }
+
+        setCalcResult({ bmi, category, color });
+      };
+
+      // WhatsApp Redirect Handler
+      const openWhatsApp = (customMsg = '') => {
+        const defaultMsg =
+          lang === 'id'
+            ? 'Halo Emerald! Saya ingin tahu lebih lanjut mengenai layanan konsultasi gaya hidup sehat dan analisa Tanita.'
+            : 'Hello Emerald! I would like to know more about your healthy lifestyle consultation services and Tanita assessment.';
+        const textToUse = customMsg || defaultMsg;
+        const url = `https://wa.me/6281336503618?text=${encodeURIComponent(textToUse)}`;
+        window.open(url, '_blank');
+      };
+
+      const handleFormSubmit = (e) => {
+        e.preventDefault();
+        const formattedMsg = `Halo Coach Niar, nama saya ${formData.name} (${formData.phone}). ${formData.message}`;
+        openWhatsApp(formattedMsg);
+      };
+
+      // Clear Chat History Handler
+      const handleClearChat = () => {
+        if (window.confirm(lang === 'id' ? 'Apakah Anda yakin ingin menghapus seluruh riwayat percakapan?' : 'Are you sure you want to clear your chat history?')) {
+          const resetMsg = [{
+            sender: 'bot',
+            text: lang === 'id'
+              ? 'Riwayat obrolan telah dibersihkan. Halo! Ada yang bisa Emerald Assistant bantu hari ini?'
+              : 'Chat history has been cleared. Hello! How can Emerald Assistant assist you today?',
+            time: getFormattedTime()
+          }];
+          setMessages(resetMsg);
+          setConversationHistory([]);
+          try {
+            localStorage.removeItem(LOCAL_STORAGE_CHAT_KEY);
+          } catch (_) {}
+        }
+      };
+
+      // Send message to Backend /api/chat
+      const sendMessage = async (textToSend) => {
+        const cleanUserText = textToSend.trim();
+        if (!cleanUserText || isLoadingAi) return;
+
+        const userTime = getFormattedTime();
+        const newMessages = [...messages, { sender: 'user', text: cleanUserText, time: userTime }];
+        const newConversation = [...conversationHistory, { role: 'user', text: cleanUserText }];
+
+        setMessages(newMessages);
+        setConversationHistory(newConversation);
+        setInputMsg('');
+        setIsLoadingAi(true);
+
+        try {
+          const response = await fetch(BACKEND_API_URL, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ conversation: newConversation })
+          });
+
+          const data = await response.json();
+
+          if (response.ok && data.result) {
+            const cleanedBotText = cleanMarkdown(data.result);
+            const botTime = getFormattedTime();
+
+            setMessages((prev) => [...prev, { sender: 'bot', text: cleanedBotText, time: botTime }]);
+            setConversationHistory((prev) => [...prev, { role: 'model', text: cleanedBotText }]);
+          } else {
+            const errorMsg = data.error || data.message || (lang === 'id' ? 'Terjadi kesalahan sistem.' : 'System error occurred.');
+            const botTime = getFormattedTime();
+            setMessages((prev) => [
+              ...prev,
+              { sender: 'bot error', text: `⚠️ ${cleanMarkdown(errorMsg)}`, time: botTime }
+            ]);
+            // Rollback conversation state
+            setConversationHistory((prev) => prev.slice(0, -1));
+          }
+        } catch (err) {
+          console.error('Backend API error:', err);
+          const botTime = getFormattedTime();
+          const fallbackText = lang === 'id'
+            ? '⚠️ Gagal terhubung ke backend server (http://localhost:3000). Silakan hubungi Coach Niar langsung via WhatsApp di 0813-3650-3618.'
+            : '⚠️ Cannot connect to backend server (http://localhost:3000). Please contact Coach Niar directly on WhatsApp at 0813-3650-3618.';
+
+          setMessages((prev) => [
+            ...prev,
+            { sender: 'bot error', text: fallbackText, time: botTime }
+          ]);
+          setConversationHistory((prev) => prev.slice(0, -1));
+        } finally {
+          setIsLoadingAi(false);
+        }
+      };
+
+      const handleSendMessage = (e) => {
+        e.preventDefault();
+        sendMessage(inputMsg);
+      };
+
+      // Quick Chips for easy questions
+      const quickSuggestions = [
+        { label: '⏰ Jam Buka', query: lang === 'id' ? 'Kapan jam operasional Rumah Sehat Fit Club Emerald?' : 'What are the operating hours of Emerald Fit Club?' },
+        { label: '📍 Lokasi Sawojajar', query: lang === 'id' ? 'Di mana alamat lengkap Rumah Sehat Emerald di Malang?' : 'Where is the exact location of Emerald in Malang?' },
+        { label: '⚖️ Analisa Tanita', query: lang === 'id' ? 'Bagaimana cara dan manfaat analisa komposisi tubuh Tanita?' : 'How does the Tanita body composition analysis work?' },
+        { label: '🥗 Konsultasi Nutrisi', query: lang === 'id' ? 'Bagaimana alur edukasi nutrisi dan pendampingan pola makan sehat?' : 'How does the nutrition and healthy diet consultation work?' },
+        { label: '📞 Kontak Coach Niar', query: lang === 'id' ? 'Berapa kontak WhatsApp Coach Niar untuk jadwal konsultasi?' : 'What is Coach Niar WhatsApp contact number?' }
+      ];
+
+      return (
+        <div className="min-h-screen bg-stone-50 text-stone-800 font-sans flex flex-col selection:bg-emerald-200 selection:text-emerald-900">
+          {/* Top Bar / Operational Notice */}
+          <div className="bg-emerald-950 text-emerald-100 text-xs sm:text-sm py-2 px-4 flex justify-between items-center border-b border-emerald-900">
+            <div className="container mx-auto flex justify-between items-center">
+              <div className="flex items-center space-x-2">
+                <Clock className="w-4 h-4 text-emerald-400" />
+                <span className="font-medium">{t.hero.hoursNotice}</span>
+              </div>
+              <div className="flex items-center space-x-4">
+                {/* Language Toggle */}
+                <button
+                  onClick={() => setLang(lang === 'id' ? 'en' : 'id')}
+                  className="flex items-center space-x-1.5 bg-emerald-900 hover:bg-emerald-800 text-white text-xs px-2.5 py-1 rounded-full transition-colors cursor-pointer border border-emerald-700/50"
+                >
+                  <Globe className="w-3.5 h-3.5 text-emerald-300" />
+                  <span className="font-semibold uppercase tracking-wider">{lang === 'id' ? 'English' : 'Bahasa ID'}</span>
+                </button>
+                <a
+                  href="https://wa.me/6281336503618"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="hidden sm:flex items-center space-x-1.5 text-emerald-300 hover:text-white transition-colors text-xs font-semibold"
+                >
+                  <Phone className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>0813-3650-3618</span>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          {/* Main Navigation Header */}
+          <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-stone-200 shadow-xs">
+            <div className="container mx-auto px-4 py-3.5 flex items-center justify-between">
+              {/* Logo / Brand */}
+              <div
+                onClick={() => setActiveTab('home')}
+                className="flex items-center space-x-3 cursor-pointer group"
+              >
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-700 flex items-center justify-center text-white shadow-md group-hover:scale-105 transition-transform">
+                  <Sparkles className="w-5 h-5 text-emerald-100" />
+                </div>
+                <div>
+                  <span className="text-xl font-extrabold tracking-tight text-emerald-950 block leading-tight">
+                    Emerald
+                  </span>
+                  <span className="text-[10px] uppercase tracking-wider font-bold text-emerald-700 block">
+                    Fit Club Malang
+                  </span>
+                </div>
+              </div>
+
+              {/* Desktop Navigation */}
+              <nav className="hidden md:flex items-center space-x-1">
+                {[
+                  { id: 'home', label: t.nav.home },
+                  { id: 'about', label: t.nav.about },
+                  { id: 'services', label: t.nav.services },
+                  { id: 'calculator', label: t.nav.calculator },
+                  { id: 'blog', label: t.nav.healthyLiving },
+                  { id: 'contact', label: t.nav.contact }
+                ].map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => setActiveTab(item.id)}
+                    className={`px-3.5 py-2 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
+                      activeTab === item.id
+                        ? 'text-emerald-800 bg-emerald-50 shadow-xs'
+                        : 'text-stone-600 hover:text-emerald-700 hover:bg-stone-100'
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </nav>
+
+              {/* Header Action Button */}
+              <div className="hidden lg:flex items-center space-x-3">
+                <button
+                  onClick={() => openWhatsApp()}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-sm font-bold transition-all shadow-sm hover:shadow-md flex items-center space-x-2 cursor-pointer"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  <span>{t.nav.consultationBtn}</span>
+                </button>
+              </div>
+
+              {/* Mobile Menu Button */}
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="md:hidden p-2 rounded-xl text-stone-600 hover:bg-stone-100 cursor-pointer"
+                aria-label="Toggle Navigation"
+              >
+                {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              </button>
+            </div>
+
+            {/* Mobile Dropdown Navigation */}
+            {mobileMenuOpen && (
+              <div className="md:hidden bg-white border-b border-stone-200 px-4 py-3 space-y-2">
+                {[
+                  { id: 'home', label: t.nav.home },
+                  { id: 'about', label: t.nav.about },
+                  { id: 'services', label: t.nav.services },
+                  { id: 'calculator', label: t.nav.calculator },
+                  { id: 'blog', label: t.nav.healthyLiving },
+                  { id: 'contact', label: t.nav.contact }
+                ].map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => {
+                      setActiveTab(item.id);
+                      setMobileMenuOpen(false);
+                    }}
+                    className={`w-full text-left px-3.5 py-2.5 rounded-xl text-base font-semibold ${
+                      activeTab === item.id
+                        ? 'bg-emerald-50 text-emerald-800 font-bold'
+                        : 'text-stone-700 hover:bg-stone-50'
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+                <div className="pt-2 border-t border-stone-100">
+                  <button
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      openWhatsApp();
+                    }}
+                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-bold flex items-center justify-center space-x-2 shadow-sm"
+                  >
+                    <MessageCircle className="w-5 h-5" />
+                    <span>{t.nav.consultationBtn}</span>
+                  </button>
+                </div>
+              </div>
+            )}
+          </header>
+
+          {/* MAIN PAGE BODY */}
+          <main className="flex-1">
+            {/* ==================== HOME TAB ==================== */}
+            {activeTab === 'home' && (
+              <div>
+                {/* Hero Section */}
+                <section className="relative bg-gradient-to-b from-emerald-50/70 via-stone-50 to-stone-50 pt-12 pb-16 lg:pt-20 lg:pb-24 overflow-hidden">
+                  <div className="container mx-auto px-4">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                      <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
+                        <div className="inline-flex items-center space-x-2 bg-emerald-100/90 text-emerald-900 text-xs sm:text-sm px-3.5 py-1.5 rounded-full font-bold border border-emerald-200">
+                          <Sparkles className="w-4 h-4 text-emerald-700" />
+                          <span>{t.hero.badge}</span>
+                        </div>
+
+                        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-stone-900 tracking-tight leading-tight">
+                          {t.hero.title}
+                        </h1>
+
+                        <p className="text-stone-600 text-base sm:text-lg leading-relaxed max-w-2xl mx-auto lg:mx-0">
+                          {t.hero.subtitle}
+                        </p>
+
+                        <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3.5 pt-2">
+                          <button
+                            onClick={() => openWhatsApp()}
+                            className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-3.5 rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center space-x-2 cursor-pointer"
+                          >
+                            <MessageCircle className="w-5 h-5" />
+                            <span>{t.hero.ctaPrimary}</span>
+                          </button>
+                          <button
+                            onClick={() => setActiveTab('services')}
+                            className="w-full sm:w-auto bg-white hover:bg-stone-100 text-stone-800 border border-stone-300 font-semibold px-6 py-3.5 rounded-xl transition-colors flex items-center justify-center space-x-2 cursor-pointer shadow-xs"
+                          >
+                            <span>{t.hero.ctaSecondary}</span>
+                            <ChevronRight className="w-4 h-4 text-stone-500" />
+                          </button>
+                        </div>
+
+                        <div className="pt-4 flex items-center justify-center lg:justify-start space-x-6 text-xs sm:text-sm text-stone-500 font-medium">
+                          <div className="flex items-center space-x-2">
+                            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                            <span>Tanita BIA Assessment</span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                            <span>Home-based Comfort</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="lg:col-span-5">
+                        <div className="relative mx-auto max-w-md lg:max-w-none">
+                          <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-emerald-400 to-teal-500 blur-lg opacity-30"></div>
+                          <div className="relative bg-white p-4 sm:p-6 rounded-3xl shadow-xl border border-stone-100 space-y-4">
+                            <img
+                              src="https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=800&q=80"
+                              alt="Healthy Nutrition Bowl"
+                              className="w-full h-56 sm:h-64 object-cover rounded-2xl shadow-inner"
+                            />
+                            <div className="bg-emerald-50 p-4 rounded-xl border border-emerald-100 flex items-center space-x-3">
+                              <div className="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center flex-shrink-0">
+                                <Heart className="w-5 h-5" />
+                              </div>
+                              <div>
+                                <h4 className="text-sm font-bold text-emerald-950">Edukasi & Konsultasi Ramah</h4>
+                                <p className="text-xs text-emerald-800">Mulai langkah awal hidup sehat bersama Coach Niar</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+
+                {/* Quick Information Cards */}
+                <section className="py-10 bg-white border-y border-stone-200">
+                  <div className="container mx-auto px-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      <div className="flex items-start space-x-4 p-5 rounded-2xl bg-stone-50 border border-stone-100">
+                        <div className="p-3 bg-emerald-100 text-emerald-700 rounded-xl">
+                          <MapPin className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <h3 className="font-bold text-stone-900 text-sm">{t.quickInfo.locationTitle}</h3>
+                          <p className="text-xs text-stone-600 mt-1 leading-relaxed">{t.quickInfo.locationDesc}</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start space-x-4 p-5 rounded-2xl bg-stone-50 border border-stone-100">
+                        <div className="p-3 bg-emerald-100 text-emerald-700 rounded-xl">
+                          <Clock className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <h3 className="font-bold text-stone-900 text-sm">{t.quickInfo.hoursTitle}</h3>
+                          <p className="text-xs text-stone-600 mt-1 leading-relaxed">{t.quickInfo.hoursDesc}</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start space-x-4 p-5 rounded-2xl bg-stone-50 border border-stone-100">
+                        <div className="p-3 bg-emerald-100 text-emerald-700 rounded-xl">
+                          <Phone className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <h3 className="font-bold text-stone-900 text-sm">{t.quickInfo.contactTitle}</h3>
+                          <p className="text-xs text-stone-600 mt-1 leading-relaxed">{t.quickInfo.contactDesc}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+
+                {/* Body Composition Highlight Section */}
+                <section className="py-16 bg-stone-50">
+                  <div className="container mx-auto px-4">
+                    <div className="max-w-3xl mx-auto text-center space-y-3 mb-12">
+                      <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 bg-emerald-100/90 px-3.5 py-1 rounded-full">
+                        {t.bodySection.badge}
+                      </span>
+                      <h2 className="text-2xl sm:text-3xl font-extrabold text-stone-900">{t.bodySection.title}</h2>
+                      <p className="text-stone-600 text-sm sm:text-base leading-relaxed">{t.bodySection.desc}</p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+                      {t.bodySection.points.map((pt, idx) => (
+                        <div key={idx} className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm hover:shadow-md transition-shadow">
+                          <div className="w-12 h-12 bg-emerald-100 text-emerald-700 rounded-xl flex items-center justify-center mb-4">
+                            {idx === 0 && <Scale className="w-6 h-6" />}
+                            {idx === 1 && <Activity className="w-6 h-6" />}
+                            {idx === 2 && <Dumbbell className="w-6 h-6" />}
+                          </div>
+                          <h3 className="font-bold text-stone-900 text-base mb-2">{pt.name}</h3>
+                          <p className="text-stone-600 text-xs sm:text-sm leading-relaxed">{pt.desc}</p>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="mt-10 text-center">
+                      <button
+                        onClick={() => setActiveTab('calculator')}
+                        className="inline-flex items-center space-x-2 bg-emerald-800 hover:bg-emerald-900 text-white font-bold px-5 py-3 rounded-xl transition-all cursor-pointer text-sm shadow-md"
+                      >
+                        <Scale className="w-4 h-4" />
+                        <span>Coba Simulasi Kalkulator Tubuh</span>
+                      </button>
+                    </div>
+                  </div>
+                </section>
+
+                {/* Services Preview Grid */}
+                <section className="py-16 bg-white border-t border-stone-200">
+                  <div className="container mx-auto px-4">
+                    <div className="flex flex-col md:flex-row md:items-end justify-between mb-12">
+                      <div>
+                        <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 bg-emerald-100/90 px-3.5 py-1 rounded-full">
+                          {t.services.badge}
+                        </span>
+                        <h2 className="text-2xl sm:text-3xl font-extrabold text-stone-900 mt-2">{t.services.title}</h2>
+                      </div>
+                      <button
+                        onClick={() => setActiveTab('services')}
+                        className="mt-4 md:mt-0 text-emerald-700 hover:text-emerald-800 font-bold text-sm flex items-center space-x-1 cursor-pointer"
+                      >
+                        <span>Lihat Semua Layanan</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {t.services.items.slice(0, 3).map((item) => (
+                        <div
+                          key={item.id}
+                          className="bg-stone-50 p-6 rounded-2xl border border-stone-200 flex flex-col justify-between hover:border-emerald-300 transition-all shadow-xs"
+                        >
+                          <div>
+                            <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center mb-4 shadow-sm">
+                              <Heart className="w-5 h-5" />
+                            </div>
+                            <h3 className="font-bold text-stone-900 text-lg mb-2">{item.title}</h3>
+                            <p className="text-stone-600 text-xs sm:text-sm leading-relaxed mb-4">{item.desc}</p>
+                          </div>
+                          <button
+                            onClick={() => openWhatsApp(`Halo Coach Niar, saya ingin bertanya tentang ${item.title}`)}
+                            className="text-emerald-700 text-xs font-bold hover:underline inline-flex items-center space-x-1 cursor-pointer pt-2 border-t border-stone-200/50"
+                          >
+                            <span>Tanyakan Sesi Ini</span>
+                            <ChevronRight className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </section>
+
+                {/* Call to Action Banner */}
+                <section className="py-16 bg-gradient-to-r from-emerald-900 via-emerald-800 to-teal-900 text-white">
+                  <div className="container mx-auto px-4 text-center max-w-3xl space-y-6">
+                    <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight">
+                      {lang === 'id' ? 'Siap Mengambil Langkah Pertama?' : 'Ready to Take Your First Step?'}
+                    </h2>
+                    <p className="text-emerald-100 text-sm sm:text-base leading-relaxed">
+                      {lang === 'id'
+                        ? 'Hubungi Coach Niar sekarang untuk berkonsultasi mengenai kebutuhan nutrisi dan kebugaran Anda. Kami siap menyambut Anda di Sawojajar, Malang.'
+                        : 'Reach out to Coach Niar today to discuss your nutrition and wellness goals. We look forward to welcoming you in Sawojajar, Malang.'}
+                    </p>
+                    <div className="pt-2">
+                      <button
+                        onClick={() => openWhatsApp()}
+                        className="bg-white text-emerald-900 hover:bg-emerald-50 font-extrabold px-8 py-3.5 rounded-xl shadow-lg transition-all text-sm sm:text-base inline-flex items-center space-x-2 cursor-pointer"
+                      >
+                        <MessageCircle className="w-5 h-5 text-emerald-600" />
+                        <span>{t.contact.sendBtn}</span>
+                      </button>
+                    </div>
+                  </div>
+                </section>
+              </div>
+            )}
+
+            {/* ==================== ABOUT TAB ==================== */}
+            {activeTab === 'about' && (
+              <div className="py-12 sm:py-16">
+                <div className="container mx-auto px-4">
+                  <div className="max-w-4xl mx-auto space-y-12">
+                    <div className="text-center space-y-3">
+                      <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 bg-emerald-100/90 px-3.5 py-1 rounded-full">
+                        {t.about.badge}
+                      </span>
+                      <h1 className="text-3xl sm:text-4xl font-extrabold text-stone-900">{t.about.title}</h1>
+                    </div>
+
+                    <div className="grid md:grid-cols-2 gap-8 items-center bg-white p-6 sm:p-8 rounded-3xl border border-stone-200 shadow-sm">
+                      <div className="space-y-4">
+                        <p className="text-stone-700 text-sm sm:text-base leading-relaxed">{t.about.desc1}</p>
+                        <p className="text-stone-700 text-sm sm:text-base leading-relaxed">{t.about.desc2}</p>
+                      </div>
+                      <div className="rounded-2xl overflow-hidden shadow-md">
+                        <img
+                          src="https://images.unsplash.com/photo-1545205597-3d9d02c29597?auto=format&fit=crop&w=800&q=80"
+                          alt="Wellness & Healthy Habits"
+                          className="w-full h-64 object-cover"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Coach Niar Profile Card */}
+                    <div className="bg-emerald-50 border border-emerald-200 p-6 sm:p-8 rounded-3xl space-y-4 shadow-xs">
+                      <div className="flex items-center space-x-4">
+                        <div className="w-14 h-14 rounded-2xl bg-emerald-600 text-white flex items-center justify-center font-extrabold text-2xl shadow-sm">
+                          CN
+                        </div>
+                        <div>
+                          <h2 className="text-xl font-bold text-emerald-950">{t.about.coachTitle}</h2>
+                          <p className="text-xs text-emerald-800 font-semibold">Rumah Sehat Fit Club Emerald Malang</p>
+                        </div>
+                      </div>
+                      <p className="text-stone-700 text-sm sm:text-base leading-relaxed">{t.about.coachDesc}</p>
+                    </div>
+
+                    {/* Core Values */}
+                    <div className="grid sm:grid-cols-3 gap-6">
+                      {t.about.values.map((v, idx) => (
+                        <div key={idx} className="bg-white p-6 rounded-2xl border border-stone-200 shadow-xs">
+                          <div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-extrabold text-sm mb-3">
+                            {idx + 1}
+                          </div>
+                          <h3 className="font-bold text-stone-900 text-sm mb-1">{v.title}</h3>
+                          <p className="text-stone-600 text-xs leading-relaxed">{v.desc}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ==================== SERVICES TAB ==================== */}
+            {activeTab === 'services' && (
+              <div className="py-12 sm:py-16">
+                <div className="container mx-auto px-4">
+                  <div className="max-w-3xl mx-auto text-center space-y-3 mb-12">
+                    <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 bg-emerald-100/90 px-3.5 py-1 rounded-full">
+                      {t.services.badge}
+                    </span>
+                    <h1 className="text-3xl sm:text-4xl font-extrabold text-stone-900">{t.services.title}</h1>
+                    <p className="text-stone-600 text-sm sm:text-base leading-relaxed">{t.services.subtitle}</p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+                    {t.services.items.map((item) => (
+                      <div
+                        key={item.id}
+                        className="bg-white p-6 rounded-3xl border border-stone-200 shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
+                      >
+                        <div className="space-y-4">
+                          <div className="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
+                            {item.id === 'consultation' && <Heart className="w-6 h-6" />}
+                            {item.id === 'nutrition' && <BookOpen className="w-6 h-6" />}
+                            {item.id === 'composition' && <Scale className="w-6 h-6" />}
+                            {item.id === 'habits' && <Flame className="w-6 h-6" />}
+                            {item.id === 'fitness' && <Dumbbell className="w-6 h-6" />}
+                          </div>
+                          <h3 className="text-lg font-bold text-stone-900">{item.title}</h3>
+                          <p className="text-stone-600 text-xs sm:text-sm leading-relaxed">{item.desc}</p>
+                        </div>
+
+                        <div className="pt-6 border-t border-stone-100 mt-6">
+                          <button
+                            onClick={() => openWhatsApp(`Halo Coach Niar, saya ingin berkonsultasi mengenai ${item.title}`)}
+                            className="w-full bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-xs py-2.5 rounded-xl transition-colors flex items-center justify-center space-x-1 cursor-pointer"
+                          >
+                            <MessageCircle className="w-4 h-4 text-emerald-600" />
+                            <span>{lang === 'id' ? 'Tanyakan via WhatsApp' : 'Inquire on WhatsApp'}</span>
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Disclaimer Box */}
+                  <div className="max-w-4xl mx-auto mt-12 bg-amber-50 border border-amber-200 p-5 rounded-2xl flex items-start space-x-3 text-amber-900 text-xs sm:text-sm">
+                    <ShieldAlert className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                    <p className="leading-relaxed">{t.services.notice}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ==================== CALCULATOR TAB ==================== */}
+            {activeTab === 'calculator' && (
+              <div className="py-12 sm:py-16">
+                <div className="container mx-auto px-4 max-w-2xl">
+                  <div className="text-center space-y-3 mb-8">
+                    <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 bg-emerald-100/90 px-3.5 py-1 rounded-full">
+                      Tool Fit Club Emerald
+                    </span>
+                    <h1 className="text-2xl sm:text-3xl font-extrabold text-stone-900">{t.calculator.title}</h1>
+                    <p className="text-stone-600 text-xs sm:text-sm leading-relaxed">{t.calculator.subtitle}</p>
+                  </div>
+
+                  <div className="bg-white p-6 sm:p-8 rounded-3xl border border-stone-200 shadow-sm space-y-6">
+                    <form onSubmit={handleCalculate} className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-xs font-bold text-stone-700 mb-1">{t.calculator.height}</label>
+                          <input
+                            type="number"
+                            value={calcHeight}
+                            onChange={(e) => setCalcHeight(e.target.value)}
+                            className="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-emerald-500 font-semibold"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-bold text-stone-700 mb-1">{t.calculator.weight}</label>
+                          <input
+                            type="number"
+                            value={calcWeight}
+                            onChange={(e) => setCalcWeight(e.target.value)}
+                            className="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-emerald-500 font-semibold"
+                            required
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-xs font-bold text-stone-700 mb-1">{t.calculator.age}</label>
+                          <input
+                            type="number"
+                            value={calcAge}
+                            onChange={(e) => setCalcAge(e.target.value)}
+                            className="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-emerald-500 font-semibold"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-bold text-stone-700 mb-1">{t.calculator.gender}</label>
+                          <select
+                            value={calcGender}
+                            onChange={(e) => setCalcGender(e.target.value)}
+                            className="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-emerald-500 font-semibold"
+                          >
+                            <option value="female">{t.calculator.female}</option>
+                            <option value="male">{t.calculator.male}</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <button
+                        type="submit"
+                        className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl transition-colors text-sm cursor-pointer shadow-sm"
+                      >
+                        {t.calculator.calculateBtn}
+                      </button>
+                    </form>
+
+                    {calcResult && (
+                      <div className="pt-6 border-t border-stone-200 space-y-4">
+                        <h3 className="font-bold text-stone-900 text-sm">{t.calculator.resultTitle}</h3>
+                        <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200 flex items-center justify-between">
+                          <div>
+                            <span className="text-xs text-stone-500 font-medium block">{t.calculator.bmiLabel}</span>
+                            <span className="text-2xl font-black text-stone-900">{calcResult.bmi}</span>
+                          </div>
+                          <span className={`px-3 py-1 rounded-full text-xs font-bold ${calcResult.color}`}>
+                            {calcResult.category}
+                          </span>
+                        </div>
+
+                        <div className="bg-emerald-50 p-4 rounded-2xl border border-emerald-100 space-y-2">
+                          <h4 className="text-xs font-bold text-emerald-950 flex items-center space-x-1">
+                            <Info className="w-4 h-4 text-emerald-600" />
+                            <span>{t.calculator.adviceTitle}</span>
+                          </h4>
+                          <p className="text-xs text-emerald-800 leading-relaxed">{t.calculator.adviceText}</p>
+                          <button
+                            onClick={() => openWhatsApp(`Halo Coach Niar, saya telah mencoba simulasi BMI (${calcResult.bmi}) dan ingin menjadwalkan analisa komposisi tubuh Tanita.`)}
+                            className="mt-2 w-full bg-emerald-600 text-white font-bold py-2.5 rounded-xl text-xs hover:bg-emerald-700 transition-colors cursor-pointer shadow-xs"
+                          >
+                            {t.calculator.ctaBtn}
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ==================== BLOG / HEALTHY LIVING TAB ==================== */}
+            {activeTab === 'blog' && (
+              <div className="py-12 sm:py-16">
+                <div className="container mx-auto px-4 max-w-5xl">
+                  <div className="text-center space-y-3 mb-12">
+                    <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 bg-emerald-100/90 px-3.5 py-1 rounded-full">
+                      {t.blog.badge}
+                    </span>
+                    <h1 className="text-3xl sm:text-4xl font-extrabold text-stone-900">{t.blog.title}</h1>
+                    <p className="text-stone-600 text-sm sm:text-base leading-relaxed">{t.blog.subtitle}</p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {t.blog.articles.map((art) => (
+                      <div
+                        key={art.id}
+                        className="bg-white rounded-3xl border border-stone-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between"
+                      >
+                        <div className="p-6 space-y-3">
+                          <div className="flex items-center justify-between text-xs text-stone-500">
+                            <span className="bg-emerald-50 text-emerald-800 font-bold px-2.5 py-0.5 rounded-full border border-emerald-100">
+                              {art.category}
+                            </span>
+                            <span className="font-medium">{art.readTime}</span>
+                          </div>
+                          <h3 className="font-bold text-stone-900 text-base leading-snug">{art.title}</h3>
+                          <p className="text-stone-600 text-xs leading-relaxed">{art.snippet}</p>
+                        </div>
+
+                        <div className="p-6 pt-0 border-t border-stone-50 flex items-center justify-between text-xs text-stone-400">
+                          <span>{art.date}</span>
+                          <button
+                            onClick={() => openWhatsApp(`Halo Coach Niar, saya membaca artikel tentang "${art.title}" dan ingin berkonsultasi lebih lanjut.`)}
+                            className="text-emerald-700 font-bold hover:underline flex items-center space-x-1 cursor-pointer"
+                          >
+                            <span>Tanyakan Coach</span>
+                            <ChevronRight className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ==================== CONTACT TAB ==================== */}
+            {activeTab === 'contact' && (
+              <div className="py-12 sm:py-16">
+                <div className="container mx-auto px-4 max-w-5xl">
+                  <div className="text-center space-y-3 mb-12">
+                    <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 bg-emerald-100/90 px-3.5 py-1 rounded-full">
+                      {t.contact.badge}
+                    </span>
+                    <h1 className="text-3xl sm:text-4xl font-extrabold text-stone-900">{t.contact.title}</h1>
+                    <p className="text-stone-600 text-sm sm:text-base leading-relaxed">{t.contact.subtitle}</p>
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-8">
+                    {/* Contact Information & Map */}
+                    <div className="space-y-6">
+                      <div className="bg-white p-6 rounded-3xl border border-stone-200 space-y-4 shadow-xs">
+                        <div className="flex items-start space-x-3">
+                          <MapPin className="w-5 h-5 text-emerald-600 mt-1 flex-shrink-0" />
+                          <div>
+                            <h3 className="font-bold text-stone-900 text-sm">{t.contact.addressTitle}</h3>
+                            <p className="text-stone-600 text-xs sm:text-sm mt-1 leading-relaxed">{t.contact.addressText}</p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-start space-x-3 border-t border-stone-100 pt-4">
+                          <Clock className="w-5 h-5 text-emerald-600 mt-1 flex-shrink-0" />
+                          <div>
+                            <h3 className="font-bold text-stone-900 text-sm">{t.contact.hoursTitle}</h3>
+                            <p className="text-stone-600 text-xs sm:text-sm mt-1 whitespace-pre-line leading-relaxed">{t.contact.hoursText}</p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-start space-x-3 border-t border-stone-100 pt-4">
+                          <Phone className="w-5 h-5 text-emerald-600 mt-1 flex-shrink-0" />
+                          <div>
+                            <h3 className="font-bold text-stone-900 text-sm">{t.contact.phoneTitle}</h3>
+                            <p className="text-stone-600 text-xs sm:text-sm mt-1 font-semibold">{t.contact.phoneText}</p>
+                          </div>
+                        </div>
+
+                        <div className="pt-2">
+                          <a
+                            href="https://www.google.com/maps/search/?api=1&query=Fit+Club+Emerald+Malang"
+                            target="_blank"
+                            rel="noreferrer"
+                            className="w-full bg-stone-100 hover:bg-stone-200 text-stone-800 font-bold py-2.5 px-4 rounded-xl text-xs transition-colors flex items-center justify-center space-x-2 cursor-pointer"
+                          >
+                            <MapPin className="w-4 h-4 text-emerald-600" />
+                            <span>{t.contact.mapBtn}</span>
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Inquiry Form */}
+                    <div className="bg-white p-6 sm:p-8 rounded-3xl border border-stone-200 shadow-sm space-y-4">
+                      <h3 className="font-bold text-stone-900 text-lg">{t.contact.formTitle}</h3>
+                      <form onSubmit={handleFormSubmit} className="space-y-4">
+                        <div>
+                          <label className="block text-xs font-bold text-stone-700 mb-1">{t.contact.nameLabel}</label>
+                          <input
+                            type="text"
+                            value={formData.name}
+                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                            placeholder="e.g. Amanda"
+                            className="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-emerald-500"
+                            required
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-stone-700 mb-1">{t.contact.phoneLabel}</label>
+                          <input
+                            type="tel"
+                            value={formData.phone}
+                            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                            placeholder="e.g. 08123456789"
+                            className="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-emerald-500"
+                            required
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-stone-700 mb-1">{t.contact.messageLabel}</label>
+                          <textarea
+                            rows="3"
+                            value={formData.message}
+                            onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                            placeholder="Tuliskan pertanyaan atau rencana kunjungan Anda..."
+                            className="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-emerald-500"
+                            required
+                          ></textarea>
+                        </div>
+
+                        <button
+                          type="submit"
+                          className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl transition-colors text-sm flex items-center justify-center space-x-2 cursor-pointer shadow-sm"
+                        >
+                          <MessageCircle className="w-4 h-4" />
+                          <span>{t.contact.sendBtn}</span>
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </main>
+
+          {/* ======================================================== */}
+          {/* FLOATING CHATBOT WIDGET (LAUNCHER & MODAL DRAWER)        */}
+          {/* ======================================================== */}
+
+          {/* Launcher Button (Always visible at bottom-right) */}
+          <div className="fixed bottom-6 right-6 z-50 flex items-center space-x-2">
+            <button
+              onClick={() => setAssistantOpen(!assistantOpen)}
+              className="group bg-gradient-to-r from-emerald-700 to-teal-800 hover:from-emerald-800 hover:to-teal-900 text-white p-3.5 sm:px-4 sm:py-3.5 rounded-full shadow-2xl transition-all hover:scale-105 flex items-center space-x-2.5 cursor-pointer border-2 border-emerald-300 pulse-glow"
+              aria-label="Buka Emerald AI Assistant"
+            >
+              <div className="relative">
+                <Bot className="w-6 h-6 text-emerald-200" />
+                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-400 rounded-full border-2 border-emerald-900"></span>
+              </div>
+              <span className="hidden sm:inline font-bold text-xs tracking-wide">Emerald AI</span>
+            </button>
+          </div>
+
+          {/* Chatbot Window / Drawer */}
+          {assistantOpen && (
+            <div className="fixed bottom-24 right-4 sm:right-6 z-50 w-[calc(100vw-2rem)] sm:w-[410px] bg-white rounded-3xl shadow-2xl border border-stone-200 flex flex-col h-[530px] max-h-[85vh] overflow-hidden animate-in slide-in-from-bottom duration-300">
+              {/* Header */}
+              <div className="bg-gradient-to-r from-emerald-950 via-emerald-900 to-teal-950 text-white px-4 py-3.5 flex items-center justify-between border-b border-emerald-800/40">
+                <div className="flex items-center space-x-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center shadow-md relative flex-shrink-0">
+                    <Sparkles className="w-4 h-4 text-white" />
+                    <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-400 rounded-full border-2 border-emerald-950"></span>
+                  </div>
+                  <div>
+                    <h3 className="font-extrabold text-sm leading-tight text-white">{t.assistant.title}</h3>
+                    <p className="text-[10.5px] text-emerald-300 font-medium flex items-center space-x-1">
+                      <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                      <span>{t.assistant.subtitle}</span>
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-1">
+                  {/* Clear Chat Button */}
+                  <button
+                    onClick={handleClearChat}
+                    className="text-emerald-300 hover:text-white p-1.5 rounded-lg hover:bg-emerald-800/50 transition-colors cursor-pointer"
+                    title={lang === 'id' ? 'Bersihkan Riwayat Chat' : 'Clear Chat History'}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                  {/* Close Button */}
+                  <button
+                    onClick={() => setAssistantOpen(false)}
+                    className="text-emerald-300 hover:text-white p-1.5 rounded-lg hover:bg-emerald-800/50 transition-colors cursor-pointer"
+                    title="Tutup Widget"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Quick Chips (Horizontal Scrollable) */}
+              <div className="bg-stone-50/90 px-3 py-2 border-b border-stone-200/80 flex items-center space-x-1.5 overflow-x-auto custom-scrollbar flex-shrink-0 text-[11px]">
+                {quickSuggestions.map((item, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => sendMessage(item.query)}
+                    className="whitespace-nowrap bg-white hover:bg-emerald-700 hover:text-white text-emerald-800 font-semibold px-2.5 py-1 rounded-full border border-emerald-200 transition-all cursor-pointer shadow-2xs hover:scale-102"
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Chat Messages Body */}
+              <div className="flex-1 p-4 overflow-y-auto space-y-3 bg-stone-50/50 text-xs custom-scrollbar">
+                {messages.map((m, i) => (
+                  <div
+                    key={i}
+                    className={`flex flex-col ${m.sender === 'user' ? 'items-end' : 'items-start'}`}
+                  >
+                    <div
+                      className={`max-w-[85%] p-3.5 rounded-2xl ${
+                        m.sender === 'user'
+                          ? 'bg-gradient-to-br from-emerald-600 to-emerald-700 text-white rounded-br-xs shadow-sm font-medium'
+                          : m.sender.includes('error')
+                          ? 'bg-rose-50 text-rose-950 border border-rose-200 rounded-bl-xs shadow-2xs'
+                          : 'bg-white text-stone-900 border border-stone-200/90 rounded-bl-xs shadow-2xs'
+                      }`}
+                    >
+                      <p className="leading-relaxed whitespace-pre-line text-[12.5px]">{m.text}</p>
+                    </div>
+                    {m.time && (
+                      <span className="text-[9.5px] text-stone-400 mt-1 px-1">{m.time}</span>
+                    )}
+                  </div>
+                ))}
+
+                {isLoadingAi && (
+                  <div className="flex flex-col items-start">
+                    <div className="bg-white p-3 rounded-2xl border border-stone-200 flex items-center space-x-2 text-stone-500 shadow-2xs">
+                      <Loader2 className="w-4 h-4 animate-spin text-emerald-600" />
+                      <span className="text-xs font-semibold text-emerald-800">
+                        {lang === 'id' ? 'Emerald AI sedang mengetik...' : 'Emerald AI is typing...'}
+                      </span>
+                    </div>
+                  </div>
+                )}
+                <div ref={chatBottomRef} />
+              </div>
+
+              {/* Chat Disclaimer Banner */}
+              <div className="px-3 py-1.5 bg-amber-50/90 text-[10px] text-amber-900 border-t border-amber-200/60 flex items-center space-x-1.5 flex-shrink-0">
+                <Info className="w-3.5 h-3.5 text-amber-600 flex-shrink-0" />
+                <span className="truncate">{t.assistant.disclaimer}</span>
+              </div>
+
+              {/* Chat Input Form */}
+              <form onSubmit={handleSendMessage} className="p-2.5 bg-white border-t border-stone-200 flex items-center space-x-2 flex-shrink-0">
+                <input
+                  type="text"
+                  value={inputMsg}
+                  onChange={(e) => setInputMsg(e.target.value)}
+                  placeholder={t.assistant.placeholder}
+                  disabled={isLoadingAi}
+                  className="flex-1 bg-stone-100 hover:bg-stone-50 focus:bg-white border border-stone-200 rounded-xl px-3 py-2 text-xs text-stone-800 placeholder-stone-400 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-medium"
+                />
+                <button
+                  type="submit"
+                  disabled={isLoadingAi || !inputMsg.trim()}
+                  className="bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40 text-white p-2.5 rounded-xl transition-all cursor-pointer shadow-sm hover:scale-105 active:scale-95"
+                  title="Kirim Pesan"
+                >
+                  <Send className="w-4 h-4" />
+                </button>
+              </form>
+            </div>
+          )}
+
+          {/* ==================== FOOTER ==================== */}
+          <footer className="bg-stone-900 text-stone-300 py-12 border-t border-stone-800 text-xs sm:text-sm">
+            <div className="container mx-auto px-4">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+                <div className="space-y-3 md:col-span-1">
+                  <div className="flex items-center space-x-2 text-white">
+                    <Sparkles className="w-5 h-5 text-emerald-400" />
+                    <span className="font-bold text-base">Emerald Fit Club</span>
+                  </div>
+                  <p className="text-stone-400 text-xs leading-relaxed">{t.footer.aboutText}</p>
+                </div>
+
+                <div>
+                  <h4 className="font-bold text-white text-sm mb-3">{t.footer.quickLinks}</h4>
+                  <ul className="space-y-2 text-xs">
+                    {['home', 'about', 'services', 'calculator', 'blog', 'contact'].map((tab) => (
+                      <li key={tab}>
+                        <button
+                          onClick={() => setActiveTab(tab)}
+                          className="hover:text-emerald-400 transition-colors capitalize cursor-pointer text-stone-400 hover:underline"
+                        >
+                          {t.nav[tab]}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div>
+                  <h4 className="font-bold text-white text-sm mb-3">{t.footer.services}</h4>
+                  <ul className="space-y-2 text-xs text-stone-400">
+                    <li>Konsultasi Gaya Hidup Sehat</li>
+                    <li>Edukasi Nutrisi & Pola Makan</li>
+                    <li>Analisa Tanita (Lemak & Otot)</li>
+                    <li>Panduan Kebiasaan Sehat</li>
+                  </ul>
+                </div>
+
+                <div>
+                  <h4 className="font-bold text-white text-sm mb-3">{t.footer.contactInfo}</h4>
+                  <p className="text-stone-400 text-xs leading-relaxed mb-2">
+                    Jl. Danau Tondano Dalam, Sawojajar 1, Malang, Jawa Timur 65139
+                  </p>
+                  <p className="text-emerald-400 font-semibold text-xs mb-2">0813-3650-3618 (Coach Niar)</p>
+                  <p className="text-stone-400 text-xs">{t.contact.hoursText.split('\n')[0]}</p>
+                </div>
+              </div>
+
+              <div className="pt-8 border-t border-stone-800 text-center text-stone-500 text-xs">
+                <p>© 2026 {t.footer.rights}</p>
+              </div>
+            </div>
+          </footer>
+        </div>
+      );
+    }
+
+    // Render the App
+    const rootElement = document.getElementById('root');
+    const root = ReactDOM.createRoot(rootElement);
+    root.render(<App />);
+  </script>
+</body>
+
+</html>
